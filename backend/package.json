@@ -13,7 +13,7 @@
     "tslint": "^5.12.1",
     "typescript": "^4.1.3"
   },
-  "name": "autoscout24",
+  "name": "backend",
   "version": "1.0.0",
   "main": "dist/app.js",
   "scripts": {

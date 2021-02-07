@@ -14,7 +14,6 @@ function IsValidListingsFormat(listings) {
             break;
         }
     }
-    console.log("Is valid listings file? " + isValid);
     return isValid;
 }
 exports.IsValidListingsFormat = IsValidListingsFormat;
@@ -29,7 +28,6 @@ function IsValidContactsFormat(contacts) {
             break;
         }
     }
-    console.log("Is valid contacts file? " + isValid);
     return isValid;
 }
 exports.IsValidContactsFormat = IsValidContactsFormat;
