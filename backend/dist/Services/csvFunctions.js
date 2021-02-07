@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IsValidContactsFormat = exports.IsValidListingsFormat = void 0;
-const csvParser = require('csv-parser');
-const fs = require('fs');
 function IsValidListingsFormat(listings) {
     if (listings.length == 0)
         return false;

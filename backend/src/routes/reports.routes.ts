@@ -4,6 +4,8 @@ import * as reportsService from "../Services/report-generator";
 
 const reportRouter = Router();
 
+reportsService.UpdateDataLists();
+
 export async function averageListing(req, res) {
     return res.json(reportsService.averageListing());
 }
@@ -21,12 +23,13 @@ export async function top5PerMonth(req, res) {
 }
 
 export async function UploadCsvFile(req, res, fileupload) {
-    try{
-    let uploadFile = req.files.file;
-    const fileName = req.files.file.name;
-    const filepath = path.resolve('./public/files/', fileName);
-    uploadFile.mv(filepath);
-    res.send("File uploaded succesfully");
+    try {
+        let uploadFile = req.files.file;
+        const fileName = req.files.file.name;
+        const filepath = path.resolve('./public/files/', fileName);
+        uploadFile.mv(filepath);
+        reportsService.UpdateDataLists();
+        res.send("File uploaded succesfully");
     }
     catch
     {

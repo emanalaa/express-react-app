@@ -19,11 +19,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.top5PerMonth = exports.Averge30TopContacted = exports.percentualDistribution = exports.averageListing = exports.getContacts = exports.getListings = void 0;
+exports.top5PerMonth = exports.Averge30TopContacted = exports.percentualDistribution = exports.averageListing = exports.getContacts = exports.getListings = exports.UpdateDataLists = void 0;
+const express_1 = require("express");
 const helper = __importStar(require("./helpers"));
 const csvFunctions = __importStar(require("./csvFunctions"));
 const path = __importStar(require("path"));
-const express_1 = require("express");
 const csvParser = require('csv-parser');
 const fs = require('fs');
 const listings = [];
@@ -32,19 +32,22 @@ const mergedData = {};
 const filesPath = './public/files';
 const listingPath = path.resolve(filesPath, 'listings.csv');
 const contactsPath = path.resolve(filesPath, 'contacts.csv');
-try {
-    fs.createReadStream(listingPath).pipe(csvParser({ from_line: 2 })).on('data', (row) => {
-        listings.push(row);
-        var x = row;
-        mergedData[row.id] = x;
-    });
-    fs.createReadStream(contactsPath).pipe(csvParser({ from_line: 2 })).on('data', (row) => {
-        contacts.push(row);
-    });
+function UpdateDataLists() {
+    try {
+        fs.createReadStream(listingPath).pipe(csvParser({ from_line: 2 })).on('data', (row) => {
+            listings.push(row);
+            var x = row;
+            mergedData[row.id] = x;
+        });
+        fs.createReadStream(contactsPath).pipe(csvParser({ from_line: 2 })).on('data', (row) => {
+            contacts.push(row);
+        });
+    }
+    catch (error) {
+        console.log(error);
+    }
 }
-catch (error) {
-    console.log(error);
-}
+exports.UpdateDataLists = UpdateDataLists;
 function getListings() {
     return listings;
 }
@@ -98,7 +101,6 @@ function percentualDistribution() {
                 carCountHash[listing.make] += 1;
         }
         for (const key in carCountHash) {
-            //carCountHash[key] = (((carCountHash[key] / totalRecords) * 100).toFixed(2)).toString() + "%";
             carCountHash[key] = ((carCountHash[key] / totalRecords) * 100).toFixed(2);
         }
         return helper.sortHashtableByValue(carCountHash, false);

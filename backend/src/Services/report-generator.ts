@@ -1,8 +1,8 @@
 import { listing } from "../models/listing.interface";
+import { response } from "express";
 import * as helper from "./helpers";
 import * as csvFunctions from "./csvFunctions";
 import * as path from 'path'
-import { response } from "express";
 
 const csvParser = require('csv-parser');
 const fs = require('fs');
@@ -15,22 +15,23 @@ const filesPath = './public/files';
 const listingPath: string = path.resolve(filesPath, 'listings.csv');
 const contactsPath: string = path.resolve(filesPath, 'contacts.csv');
 
-try {
-  fs.createReadStream(listingPath).pipe(csvParser({ from_line: 2 })).on('data', (row) => {
-    listings.push(row);
-    var x: listing = row;
-    mergedData[row.id] = x;
-  });
+export function UpdateDataLists() {
+  try {
+    fs.createReadStream(listingPath).pipe(csvParser({ from_line: 2 })).on('data', (row) => {
+      listings.push(row);
+      var x: listing = row;
+      mergedData[row.id] = x;
+    });
 
-  fs.createReadStream(contactsPath).pipe(csvParser({ from_line: 2 })).on('data', (row) => {
-    contacts.push(row);
-  });
+    fs.createReadStream(contactsPath).pipe(csvParser({ from_line: 2 })).on('data', (row) => {
+      contacts.push(row);
+    });
 
+  }
+  catch (error) {
+    console.log(error);
+  }
 }
-catch (error) {
-  console.log(error);
-}
-
 
 export function getListings() {
   return listings;
@@ -94,7 +95,6 @@ export function percentualDistribution() {
     }
 
     for (const key in carCountHash) {
-      //carCountHash[key] = (((carCountHash[key] / totalRecords) * 100).toFixed(2)).toString() + "%";
       carCountHash[key] = ((carCountHash[key] / totalRecords) * 100).toFixed(2);
     }
 

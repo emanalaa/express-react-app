@@ -33,6 +33,7 @@ const express_1 = require("express");
 const path = __importStar(require("path"));
 const reportsService = __importStar(require("../Services/report-generator"));
 const reportRouter = express_1.Router();
+reportsService.UpdateDataLists();
 function averageListing(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         return res.json(reportsService.averageListing());
@@ -64,6 +65,7 @@ function UploadCsvFile(req, res, fileupload) {
             const fileName = req.files.file.name;
             const filepath = path.resolve('./public/files/', fileName);
             uploadFile.mv(filepath);
+            reportsService.UpdateDataLists();
             res.send("File uploaded succesfully");
         }
         catch (_a) {
