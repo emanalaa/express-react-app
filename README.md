@@ -8,7 +8,7 @@ How to run the project:
 
 3- Go the cloned folder using this command: `cd express-react-app/frontend`
 
-4- Write in the terminal ###`npm start`(it will start both frontend and backend projects)
+4- Write in the terminal `npm start`(it will start both frontend and backend projects)
 
 5- Go to `http://localhost:8080` in your browser to see the reports and upload new files to generate new reports
 
