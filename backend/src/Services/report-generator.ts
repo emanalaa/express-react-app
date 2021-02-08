@@ -70,9 +70,7 @@ export function averageListing() {
     return output;
   }
   catch (err) {
-    console.log(err);
-    response.statusCode = 500;
-    return "An error occurred while calculating your data";
+    errorMessage(err);
   }
 }
 
@@ -101,9 +99,7 @@ export function percentualDistribution() {
     return helper.sortHashtableByValue(carCountHash, false);
   }
   catch (err) {
-    console.log(err);
-    response.statusCode = 500;
-    return "An error occurred while calculating your data";
+    errorMessage(err);
   }
 }
 
@@ -130,10 +126,53 @@ export function Averge30TopContacted() {
     return (summation / top30Count).toFixed(2);
   }
   catch (err) {
-    console.log(err);
-    response.statusCode = 500;
-    return "An error occurred while calculating your data";
+    errorMessage(err);
   }
+}
+
+
+export function top5PerMonth() {
+  try {
+
+    if (csvFunctions.IsValidContactsFormat(contacts) == false || csvFunctions.IsValidListingsFormat(listings) == false) {
+      response.statusCode = 400;
+      return "Please enter a valid contacts and listings format file";
+    }
+
+    var listingsPerMonth = groupContactsByMonth();
+
+    var top5Monthly = {};
+
+    for (const month in listingsPerMonth) {
+
+      let listingIds = listingsPerMonth[month];
+      var monthlyListing = countListingInMonth(listingIds);
+
+      var sortedListings = helper.sortHashtableByValue(monthlyListing, false);
+      sortedListings = sortedListings.slice(0, 5);
+
+      top5Monthly[month] = [];
+
+      for (var i = 0; i < sortedListings.length; i++) {
+        var listingId = sortedListings[i][0];
+        //params: (listingId, contactedCount, rank)
+        var listingRowInMonth = getListingInMonth(listingId, sortedListings[i][1], i);
+        top5Monthly[month].push(listingRowInMonth);
+      }
+    }
+
+    //Sort by month
+    top5Monthly = Object.keys(top5Monthly).sort().reduce((r, k) => (r[k] = top5Monthly[k], r), {});
+    return top5Monthly;
+  } catch (err) {
+    errorMessage(err);
+  }
+}
+
+function errorMessage(err) {
+  console.log(err);
+  response.statusCode = 500;
+  return "An error occurred while calculating your data";
 }
 
 function GetContactedCounts() {
@@ -154,63 +193,43 @@ function GetContactedCounts() {
   return contactedCount;
 }
 
-export function top5PerMonth() {
-  try {
+function groupContactsByMonth() {
 
-    if (csvFunctions.IsValidContactsFormat(contacts) == false || csvFunctions.IsValidListingsFormat(listings) == false) {
-      response.statusCode = 400;
-      return "Please enter a valid contacts and listings format file";
+  var groupByMonth = {};
+  for (var i = 0; i < contacts.length; i++) {
+    var convertedDate = helper.ConvertTimestampToDate(+contacts[i].contact_date);
+    if (groupByMonth[convertedDate] == null) {
+      groupByMonth[convertedDate] = [contacts[i].listing_id];
     }
-
-    var groupByMonth = {};
-    for (var i = 0; i < contacts.length; i++) {
-      var convertedDate = helper.ConvertTimestampToDate(+contacts[i].contact_date);
-      if (groupByMonth[convertedDate] == null) {
-        groupByMonth[convertedDate] = [contacts[i].listing_id];
-      }
-      else {
-        groupByMonth[convertedDate].push(contacts[i].listing_id);
-      }
+    else {
+      groupByMonth[convertedDate].push(contacts[i].listing_id);
     }
-
-    var top5Monthly = {};
-
-    for (const key in groupByMonth) {
-      let listingIds = groupByMonth[key];
-      var monthlyListing = {};
-
-      for (var i = 0; i < listingIds.length; i++) {
-        if (monthlyListing[listingIds[i]] == null)
-          monthlyListing[listingIds[i]] = 1;
-        else
-          monthlyListing[listingIds[i]] += 1;
-      }
-
-      var sortedListings = helper.sortHashtableByValue(monthlyListing, false);
-      sortedListings = sortedListings.slice(0, 5);
-
-      top5Monthly[key] = [];
-
-      for (var i = 0; i < sortedListings.length; i++) {
-        var listingValue = mergedData[sortedListings[i][0]];
-        var listingMerged = {
-          'Ranking': i + 1,
-          'ListingId': listingValue.id,
-          'Make': listingValue.make,
-          'SellingPrice': listingValue.price,
-          'Mileage': listingValue.mileage,
-          'NumberOfContacts': sortedListings[i][1]
-        };
-        top5Monthly[key].push(listingMerged);
-      }
-    }
-
-    //Sort by month
-    top5Monthly = Object.keys(top5Monthly).sort().reduce((r, k) => (r[k] = top5Monthly[k], r), {});
-    return top5Monthly;
-  } catch (err) {
-    console.log(err);
-    response.statusCode = 500;
-    return "An error occurred while calculating your data";
   }
+  return groupByMonth;
+}
+
+function countListingInMonth(listingIds) {
+  var monthlyListing = {};
+
+  for (var i = 0; i < listingIds.length; i++) {
+    if (monthlyListing[listingIds[i]] == null)
+      monthlyListing[listingIds[i]] = 1;
+    else
+      monthlyListing[listingIds[i]] += 1;
+  }
+
+  return monthlyListing;
+}
+
+function getListingInMonth(listingId: number, contactedCount: number, rank: number) {
+  var listingValue = mergedData[listingId];
+  var listingRowInMonth = {
+    'Ranking': rank + 1,
+    'ListingId': listingValue.id,
+    'Make': listingValue.make,
+    'SellingPrice': listingValue.price,
+    'Mileage': listingValue.mileage,
+    'NumberOfContacts': contactedCount
+  };
+  return listingRowInMonth;
 }
