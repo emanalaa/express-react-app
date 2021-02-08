@@ -36,7 +36,7 @@ const Top5PerMonth = ({ top5PerMonth }) => {
                 {
                     Object.entries(top5PerMonth).map(([key, values]) => (
                         <div>
-                            <h5 className="card-title">Month: {key}</h5>
+                            <h4>Month: {key}</h4>
                             <table>
                                 <TableHeader />
                                 <tbody>
